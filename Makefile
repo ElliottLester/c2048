@@ -8,7 +8,9 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -g -lncurses -std=c99
+OPTFLAGS = -O3
+OPTDEBUG = -g
+CFLAGS = -Wall -lncurses -std=c99
 
 MAIN =  src/main.o
 
@@ -20,7 +22,10 @@ LIBS =
 TARGET = 2048
 
 all:	 $(OBJS) $(MAIN)
-	$(CC) $(CFLAGS) $(OBJS) $(MAIN) -o $(TARGET)
+	$(CC) $(CFLAGS) $(OPTDEBUG) $(OBJS) $(MAIN) -o $(TARGET)
 
 clean:
 	rm -f $(OBJS) $(MAIN) $(TARGET)
+
+fast:	$(OBJS) $(MAIN)
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(OBJS) $(MAIN) -o $(TARGET)

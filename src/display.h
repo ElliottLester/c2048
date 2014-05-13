@@ -1,7 +1,6 @@
 #ifndef DISPLAY_H_   /* Include guard */
 #define DISPLAY_H_
 
-//display lib
 #include "board.h"
 #include <curses.h>
 
