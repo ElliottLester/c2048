@@ -1,5 +1,27 @@
 #include "display.h"
 
+void display_init() {
+
+//ncurses screen init
+initscr();
+cbreak();
+noecho();
+
+//capture special keys
+keypad(stdscr, TRUE);
+
+//no blocking read enable
+nodelay(stdscr, TRUE);
+
+//hide cursor
+curs_set(0);
+
+}
+
+void display_end() {
+    endwin();
+}
+
 void printCell(int column,int row, int value,int type) {
 
     //center top bottom edges
@@ -29,10 +51,11 @@ void printCell(int column,int row, int value,int type) {
 
 void printBoard(struct game * input) {
     int size = input->size;
-    int * board = *input->board;
+    int cell = 0;
     for(int y = 0 ; y < size ; y++) {
         for(int x = 0 ; x < size ; x++) {
-            printCell((x*CELL_WIDE),(y*CELL_HIGH),board[x][y],0);
+            cell = board_get(input,x,y);
+            printCell((x*CELL_WIDE),(y*CELL_HIGH),cell,0);
         }
     }
     //decorate table

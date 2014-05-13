@@ -10,9 +10,9 @@
 CC = gcc
 CFLAGS = -Wall -g -lncurses -std=c99
 
-MAIN =  src/2048.o
+MAIN =  src/main.o
 
-OBJS =
+OBJS = src/board.o src/display.o
 
 LIBS =
 

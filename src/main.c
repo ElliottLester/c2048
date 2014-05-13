@@ -7,31 +7,12 @@
 #include "display.h"
 
 int main(int argc, char *argv[]) {
-    struct game * localBoard = malloc(sizeof(struct game));
-    int ch, score, moveScore, gameState, numbersRead;
+    struct game * localBoard = board_create(4);
+    int ch, moveScore, gameState ;
     unsigned int seed;
-    WINDOW * mainWin;
+    //int score;
 
-    localBoard->size = SIZE;
-    localBoard->board = malloc(sizeof(int)*localBoard->size*localBoard->size);
-
-
-    //ncurses screen init
-    initscr();
-    cbreak();
-    noecho();
-
-    //capture special keys
-    keypad(stdscr, TRUE);
-
-    //no blocking read enable
-    //nodelay(stdscr, TRUE);
-
-    //hide cursor
-    curs_set(0);
-
-    //create stdscr window
-    mainWin = newwin(17, 21, 0, 0);
+    display_init();
 
     // initialize random generator with command-line argument if provided
     // or with current time
@@ -44,14 +25,16 @@ int main(int argc, char *argv[]) {
 
     moveScore = 0;
 
+    board_set(localBoard,1,0,2);
+    board_set(localBoard,3,0,2);
+
     while (gameState == 0) {
         wrefresh(stdscr);
-        printBoard(board);
-        wrefresh(mainWin);
+        printBoard(localBoard);
+        wrefresh(stdscr);
 
         if ((ch = getch()) == ERR) {
             //user has not responded.
-            usleep(100);
         }
         else {
             //the user has responded.
@@ -61,30 +44,30 @@ int main(int argc, char *argv[]) {
                     moveScore = -1;
                     break;
                 case KEY_UP:
-                    moveScore = moveUp(board);
+                    //moveScore = moveUp(board);
                     break;
                 case KEY_DOWN:
-                    moveScore = moveDown(board);
+                    //moveScore = moveDown(board);
                     break;
                 case KEY_LEFT:
-                    moveScore = moveLeft(board);
+                    //moveScore = moveLeft(board);
                     break;
                 case KEY_RIGHT:
-                    moveScore = moveRight(board);
+                    //moveScore = moveRight(board);
                     break;
                 default:
                     moveScore = -1;
                     break;
             }
             if (moveScore >= 0) {
-                insertNewNumber(board);
+                //insertNewNumber(board);
             }
 
         }
     }
 
     //turn off all the ncurses code
-    endwin();
+    display_end();
 
     return 0;
 }
