@@ -11,7 +11,7 @@ noecho();
 keypad(stdscr, TRUE);
 
 //no blocking read enable
-nodelay(stdscr, TRUE);
+//nodelay(stdscr, TRUE);
 
 //hide cursor
 curs_set(0);
@@ -24,6 +24,9 @@ void display_end() {
 
 void printCell(int column,int row, int value,int type) {
 
+    int cell_row_center = CELL_HIGH / 2;
+    int cell_col_center = CELL_WIDE / 2;
+
     //center top bottom edges
     for(int i = 1 ;i < CELL_WIDE ; i++) {
         mvaddch(row,column+i,ACS_HLINE);
@@ -35,16 +38,25 @@ void printCell(int column,int row, int value,int type) {
         mvaddch(row+i,column,ACS_VLINE);
         mvaddch(row+i,column+CELL_WIDE,ACS_VLINE);
     }
+    attron(A_STANDOUT);
+
+    for (int i = 1 ; i < CELL_HIGH ; i++) {
+        for (int j=1 ; j < CELL_WIDE-1 ; j++) {
+
+            mvaddch(row+i,column+j,' ');
+        }
+    }
 
     if (value > 0 && value < 100) {
-        mvprintw(row+2,column+2," %2d",value);
+        mvprintw(row+cell_row_center,(column+cell_col_center)-1,"%2d",value);
     }
     else if (value > 0 && value < 10000) {
-        mvprintw(row+2,column+1,"%4d",value);
+        mvprintw(row+cell_row_center,(column+cell_col_center)-2,"%4d",value);
     }
     else {
-        mvprintw(row+2,column+1,"    ");
+        mvprintw(row+cell_row_center,column+cell_row_center-1,"    ");
     }
+    attroff(A_STANDOUT);
 }
 
 // printBoard displays the board.
