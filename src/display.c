@@ -1,5 +1,5 @@
 #include "display.h"
-
+#include <math.h>
 void display_init() {
 
 //ncurses screen init
@@ -16,10 +16,35 @@ keypad(stdscr, TRUE);
 //hide cursor
 curs_set(0);
 
+//start colours
+start_color();
+
+init_pair(0,COLOR_WHITE,COLOR_BLACK);
+init_pair(1,COLOR_BLACK,COLOR_WHITE);
+init_pair(2,COLOR_BLACK,COLOR_WHITE);
+init_pair(3,COLOR_BLACK,COLOR_YELLOW);
+init_pair(4,COLOR_WHITE,COLOR_RED);
+init_pair(5,COLOR_RED,COLOR_YELLOW);
+init_pair(6,COLOR_CYAN,COLOR_RED);
+init_pair(7,COLOR_BLACK,COLOR_CYAN);
+init_pair(8,COLOR_BLACK,COLOR_WHITE);
+init_pair(9,COLOR_BLACK,COLOR_WHITE);
+init_pair(10,COLOR_BLACK,COLOR_YELLOW);
+init_pair(11,COLOR_BLACK,COLOR_RED);
+init_pair(12,COLOR_BLACK,COLOR_WHITE);
+
+
 }
 
 void display_end() {
     endwin();
+}
+
+int display_code(int input) {
+    double result;
+    result = log10(input)/log10(2);
+    return round(result);
+
 }
 
 void printCell(int column,int row, int value,int type) {
@@ -38,11 +63,12 @@ void printCell(int column,int row, int value,int type) {
         mvaddch(row+i,column,ACS_VLINE);
         mvaddch(row+i,column+CELL_WIDE,ACS_VLINE);
     }
-    attron(A_STANDOUT);
+
+    attron(COLOR_PAIR(display_code(value)));
+    attron(A_BOLD);
 
     for (int i = 1 ; i < CELL_HIGH ; i++) {
         for (int j=1 ; j < CELL_WIDE-1 ; j++) {
-
             mvaddch(row+i,column+j,' ');
         }
     }
@@ -56,7 +82,8 @@ void printCell(int column,int row, int value,int type) {
     else {
         mvprintw(row+cell_row_center,column+cell_row_center-1,"    ");
     }
-    attroff(A_STANDOUT);
+    attroff(COLOR_PAIR(display_code(value)));
+    attroff(A_BOLD);
 }
 
 // printBoard displays the board.

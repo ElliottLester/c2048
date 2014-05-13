@@ -8,9 +8,7 @@
 #
 
 CC = gcc
-OPTFLAGS = -O3
-OPTDEBUG = -g
-CFLAGS = -Wall -lncurses -std=c99
+CFLAGS = -Wall -g -lncurses -std=c99 -lm
 
 MAIN =  src/main.o
 
@@ -26,6 +24,3 @@ all:	 $(OBJS) $(MAIN)
 
 clean:
 	rm -f $(OBJS) $(MAIN) $(TARGET)
-
-fast:	$(OBJS) $(MAIN)
-	$(CC) $(CFLAGS) $(OPTFLAGS) $(OBJS) $(MAIN) -o $(TARGET)
