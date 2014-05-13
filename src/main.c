@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
 
     moveScore = 0;
 
-    board_set(localBoard,1,0,2);
-    board_set(localBoard,3,0,2);
+    board_set(localBoard,1,2,2);
+    board_set(localBoard,3,2,2);
 
     while (gameState == 0) {
         wrefresh(stdscr);
@@ -44,23 +44,23 @@ int main(int argc, char *argv[]) {
                     moveScore = -1;
                     break;
                 case KEY_UP:
-                    //moveScore = moveUp(board);
+                    moveScore = moveUp(localBoard);
                     break;
                 case KEY_DOWN:
-                    //moveScore = moveDown(board);
+                    moveScore = moveDown(localBoard);
                     break;
                 case KEY_LEFT:
-                    //moveScore = moveLeft(board);
+                    moveScore = moveLeft(localBoard);
                     break;
                 case KEY_RIGHT:
-                    //moveScore = moveRight(board);
+                    moveScore = moveRight(localBoard);
                     break;
                 default:
                     moveScore = -1;
                     break;
             }
             if (moveScore >= 0) {
-                //insertNewNumber(board);
+                insertNewNumber(localBoard);
             }
 
         }
@@ -68,6 +68,8 @@ int main(int argc, char *argv[]) {
 
     //turn off all the ncurses code
     display_end();
+
+    board_free(localBoard);
 
     return 0;
 }

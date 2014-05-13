@@ -64,7 +64,8 @@ int board_set(struct game * input ,int x ,int y ,int value) {
 // Otherwise they move the numbers as indicated and return
 // the change to the score from combining adjacent identical numbers.
 // They return 0 if no numbers were combined.
-/*
+
+
 int moveLeft(struct game * input ) {
     //forward rows
     int size = input->size;
@@ -74,11 +75,11 @@ int moveLeft(struct game * input ) {
         offset = 0;
         //pack the row to the left
         for(int i = 0 ; i < size; i++){
-            cell = getvalue(board,i,row);
+            cell = board_get(input,i,row);
             if(cell != 0){
-                board[offset][row] = cell;
+                board_set(input,offset,row,cell);
                 if(offset != i){
-                    board[i][row] = 0;
+                    board_set(input,i,row,0);
                     hasMoved = true;
                 }
                 offset++;
@@ -86,16 +87,16 @@ int moveLeft(struct game * input ) {
         }
         //compact row if possible
         for(int i = 0 ; i < size; i++){
-            cell = getvalue(board,i,row);
-            if (cell == getvalue(board,i+1,row)) {
+            cell = board_get(input,i,row);
+            if (cell == board_get(input,i+1,row)) {
                 if(cell != 0) {
                     hasMoved = true;
                 }
-                board[i][row] = cell*2;
+                board_set(input,i,row,cell*2);
                 localScore += cell*2;
                 //shift
                 for(int j = i+1 ; j < size; j++) {
-                    board[j][row] = getvalue(board,j+1,row);
+                    board_set(input,j,row,board_get(input,j+1,row));
                 }
             }
         }
@@ -115,11 +116,11 @@ int moveRight(struct game * input ) {
         offset = size-1;
         //pack the row to the right
         for(int i = size-1 ; i >= 0 ; i--){
-            cell = getvalue(board,i,row);
+            cell = board_get(input,i,row);
             if(cell != 0){
-                board[offset][row] = cell;
+                board_set(input,offset,row,cell);
                 if(offset != i){
-                    board[i][row] = 0;
+                    board_set(input,i,row,0);
                     hasMoved = true;
                 }
                 offset--;
@@ -127,16 +128,16 @@ int moveRight(struct game * input ) {
         }
         //compact the row if possible
         for(int i = size-1 ; i >= 0; i--){
-            cell = getvalue(board,i,row);
-            if (cell == getvalue(board,i-1,row)) {
+            cell = board_get(input,i,row);
+            if (cell == board_get(input,i-1,row)) {
                 if (cell != 0) {
                     hasMoved = true;
                 }
-                board[i][row] = cell*2;
+                board_set(input,i,row,cell*2);
                 localScore += cell*2;
                 //shift
                 for(int j = i-1 ; j >= 0; j--) {
-                    board[j][row] = getvalue(board,j-1,row);
+                    board_set(input,j,row,board_get(input,j-1,row));
                 }
             }
         }
@@ -156,11 +157,11 @@ int moveUp(struct game * input ) {
         offset = 0;
         //pack the cols to the top
         for(int i = 0 ; i < size; i++){
-            cell = getvalue(board,col,i);
+            cell = board_get(input,col,i);
             if(cell != 0){
-                board[col][offset] = cell;
+                board_set(input,col,offset,cell);
                 if(offset != i){
-                    board[col][i] = 0;
+                    board_set(input,col,i,0);
                     hasMoved = true;
                 }
                 offset++;
@@ -168,16 +169,16 @@ int moveUp(struct game * input ) {
         }
         //compact the row if possible
         for(int i = 0 ; i < size; i++){
-            cell = getvalue(board,col,i);
-            if (cell == getvalue(board,col,i+1)) {
+            cell = board_get(input,col,i);
+            if (cell == board_get(input,col,i+1)) {
                 if (cell != 0) {
                     hasMoved = true;
                 }
-                board[col][i] = cell*2;
+                board_set(input,col,i,cell*2);
                 localScore += cell*2;
                 //shift
                 for(int j = i+1 ; j < size; j++) {
-                    board[col][j] = getvalue(board,col,j+1);
+                    board_set(input,col,j,board_get(input,col,j+1));
                 }
             }
         }
@@ -190,6 +191,7 @@ int moveUp(struct game * input ) {
     return -1;
 }
 
+
 int moveDown(struct game * input ) {
     //backwards columns
     int size = input->size;
@@ -199,11 +201,11 @@ int moveDown(struct game * input ) {
         offset = size-1;
         //pack the cols to the bottom
         for(int i = size-1 ; i >= 0 ; i--){
-            cell = getvalue(board,col,i);
+            cell = board_get(input,col,i);
             if(cell != 0){
-                board[col][offset] = cell;
+                board_set(input,col,offset,cell);
                 if(offset != i){
-                    board[col][i] = 0;
+                    board_set(input,col,i,0);
                     hasMoved = true;
                 }
                 offset--;
@@ -211,16 +213,16 @@ int moveDown(struct game * input ) {
         }
         //compact the row if possible
         for(int i = size-1 ; i >= 0; i--){
-            cell = getvalue(board,col,i);
-            if (cell == getvalue(board,col,i-1)) {
+            cell = board_get(input,col,i);
+            if (cell == board_get(input,col,i-1)) {
                 if(cell != 0) {
                     hasMoved = true;
                 }
-                board[col][i] = cell*2;
+                board_set(input,col,i,cell*2);
                 localScore += cell*2;
                 //shift
                 for(int j = i-1 ; j >= 0; j--) {
-                    board[col][j] = getvalue(board,col,j-1);
+                    board_set(input,col,j,board_get(input,col,j-1));
                 }
             }
         }
@@ -244,7 +246,7 @@ void insertNewNumber(struct game * input) {
     // count vacant squares
     for (row = 0; row < size; row = row + 1) {
         for (column = 0; column < size; column = column + 1) {
-            if (board[row][column] == 0) {
+            if (board_get(input,row,column) == 0) {
                 availableSquares = availableSquares + 1;
             }
         }
@@ -259,12 +261,12 @@ void insertNewNumber(struct game * input) {
     index = rand() % availableSquares;
     for (row = 0; row < size; row = row + 1) {
         for (column = 0; column < size; column = column + 1) {
-            if (board[row][column] == 0) {
+            if (board_get(input,row,column) == 0) {
                 if (index == 0) {
                     if (rand() % 10 == 0) {
-                        board[row][column] = 4;
+                        board_set(input,row,column,4);
                     } else {
-                        board[row][column] = 2;
+                        board_set(input,row,column,2);
                     }
                     return;
                 }
@@ -272,4 +274,4 @@ void insertNewNumber(struct game * input) {
             }
         }
     }
-}*/
+}
