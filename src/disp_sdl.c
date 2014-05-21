@@ -25,10 +25,16 @@ void disp_sdl_init(void){
     renderer = SDL_CreateRenderer(window, -1, 0);
 
     // Select the color for drawing. It is set to red here.
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     // Clear the entire screen to our selected color.
     SDL_RenderClear(renderer);
+
+    SDL_SetRenderDrawColor(renderer,255,0,0,255);
+
+    SDL_Rect rectangle={256,256,64,64};
+
+    SDL_RenderFillRect(renderer, &rectangle);
 
     // Up until now everything was drawn behind the scenes.
     // This will show the new, red contents of the window.
