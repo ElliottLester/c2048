@@ -1,4 +1,4 @@
-#include "curses.h"
+#include "disp_curses.h"
 #include <math.h>
 
 #define TILE2       1

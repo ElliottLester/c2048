@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "board.h"
-#include "curses.h"
+#include "disp_curses.h"
+#include "disp_sdl.h"
 
 int main(int argc, char *argv[]) {
     struct game * localBoard = board_create(4);
@@ -10,6 +11,7 @@ int main(int argc, char *argv[]) {
     //int score;
 
     display_init();
+    disp_sdl_init();
 
     // initialize random generator with command-line argument if provided
     // or with current time

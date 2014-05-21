@@ -8,11 +8,11 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -g -lncurses -std=c99 -lm
+CFLAGS = -Wall -g -lncurses -std=c99 -lm -lSDL2
 
 MAIN =  src/main.o
 
-OBJS = src/board.o src/curses.o
+OBJS = src/board.o src/disp_curses.o src/disp_sdl.o
 
 LIBS =
 
