@@ -12,7 +12,7 @@ CFLAGS = -Wall -g -lncurses -std=c99 -lm
 
 MAIN =  src/main.o
 
-OBJS = src/board.o src/display.o
+OBJS = src/board.o src/curses.o
 
 LIBS =
 

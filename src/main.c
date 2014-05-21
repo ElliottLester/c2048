@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "board.h"
-#include "display.h"
+#include "curses.h"
 
 int main(int argc, char *argv[]) {
     struct game * localBoard = board_create(4);
