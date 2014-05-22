@@ -1,72 +1,71 @@
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
 #include <time.h>
 #include "board.h"
 #include "disp_curses.h"
 #include "disp_sdl.h"
 
-int main(int argc, char *argv[]) {
-    struct game * localBoard = board_create(4);
-    int ch, moveScore, gameState ;
+int main(int argc, char **argv) {
+
     unsigned int seed;
-    //int score;
+    int board_size;
 
-    display_init();
-    disp_sdl_init();
-
-    // initialize random generator with command-line argument if provided
-    // or with current time
-    if (argc > 1){
-        seed = atoi(argv[1]);
-    } else {
-        seed = time(0);
+    int flag_curses = 1;
+    int flag_sdl = 0;
+    char* opt_seed = NULL;
+    char* opt_board = NULL;
+    int c;
+    while ((c = getopt(argc, argv, "CSs:b:")) != -1){
+        switch(c)
+        {
+            case 'C':
+                flag_curses = 1;
+                flag_sdl = 0;
+                break;
+            case 'S':
+                flag_curses = 0;
+                flag_sdl = 1;
+                break;
+            case 's':
+                opt_seed = optarg;
+                break;
+            case 'b':
+                opt_board = optarg;
+                break;
+        }
     }
+
+    if (opt_seed == NULL) {
+        seed = time(0);
+    } else {
+        seed = atoi(opt_seed);
+    }
+
+    if (opt_board == NULL) {
+        board_size = 4;
+    } else {
+        board_size = atoi(opt_board);
+        if (board_size < 3 || board_size > 15)
+            board_size = 4;
+    }
+
+    struct game * localBoard = board_create(board_size);
+
     srand(seed);
 
-    moveScore = 0;
+    int board_limit = rand() % 2;
 
-    board_set(localBoard,1,2,2);
-    board_set(localBoard,3,2,2);
-
-    while (gameState == 0) {
-        wrefresh(stdscr);
-        printBoard(localBoard);
-        wrefresh(stdscr);
-
-        if ((ch = getch()) == ERR) {
-            //user has not responded.
-        }
-        else {
-            //the user has responded.
-            switch(ch) {
-                case 'q':
-                    gameState = -1;
-                    moveScore = -1;
-                    break;
-                case KEY_UP:
-                    moveScore = moveUp(localBoard);
-                    break;
-                case KEY_DOWN:
-                    moveScore = moveDown(localBoard);
-                    break;
-                case KEY_LEFT:
-                    moveScore = moveLeft(localBoard);
-                    break;
-                case KEY_RIGHT:
-                    moveScore = moveRight(localBoard);
-                    break;
-                default:
-                    moveScore = -1;
-                    break;
-            }
-            if (moveScore >= 0) {
-                insertNewNumber(localBoard);
-            }
-
-        }
+    for (int i = 0 ; i <= board_limit;i++){
+        board_set(localBoard,rand() % board_size,rand() % board_size,2);
     }
 
-    //turn off all the ncurses code
-    display_end();
+    if(flag_curses == 1) {
+        curses_main(localBoard,seed);
+    }
+    else if (flag_sdl == 1) {
+        sdl_main(localBoard,seed);
+    }
 
     board_free(localBoard);
 

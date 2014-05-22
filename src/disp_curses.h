@@ -33,4 +33,9 @@ void printCell(int column,int row, int value,int type);
  */
 void printBoard(struct game * input);
 
+/*
+ *The main curses control loop returns when the game ends
+ */
+void curses_main(struct game * input,unsigned int seed);
+
 #endif
