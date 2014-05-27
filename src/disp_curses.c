@@ -79,7 +79,11 @@ void display_end() {
 
 int display_code(int input) {
     double result;
-    result = (log10(input)/log10(2));
+    if (input > 0) {
+        result = (log10(input)/log10(2));
+    } else {
+        result = 0;
+    }
     return round(result);
 
 }

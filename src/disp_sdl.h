@@ -8,7 +8,7 @@
 //drawing constants
 //keep in mind the charaters
 //are taller than they are wide
-#define COLORS 16
+#define COLORS 14
 
 struct color_tuple {
     int r;

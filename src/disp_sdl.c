@@ -6,28 +6,49 @@
 
 static int display_code(int input) {
     double result;
+    if (input > 0 && input <= 2048) {
     result = (log10(input)/log10(2));
+    } else if (input == 0) {
+        result = 0 ;
+    } else {
+        result = 13;
+    }
     return round(result);
 
 }
 
-static struct color_tuple palette[COLORS] = {
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
-    {0,0,0},
+static struct color_tuple backgrounds[COLORS] = {
+    {238,228,218},
+    {238,228,218},
+    {237,224,200},
+    {242,177,121},
+    {245,149,99},
+    {246,124,95},
+    {246,94,59},
+    {237,207,114},
+    {237,204,97},
+    {237,200,80},
+    {237,197,63},
+    {237,194,46},
+    {60,58,50},
     {0,0,0}
+};
+
+static struct color_tuple forgrounds[COLORS] = {
+    {119,110,101},
+    {119,110,101},
+    {119,110,101},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242},
+    {249,246,242}
 };
 
 
@@ -65,11 +86,13 @@ int disp_sdl_init(void){
             return 1;
 
         // load font.ttf at size 16 into font
-        font=TTF_OpenFont("/usr/share/fonts/corefonts/couri.ttf", 24);
+        font=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 48);
         if(!font) {
             printf("TTF_OpenFont: %s\n", TTF_GetError());
             return 1;
         }
+        TTF_SetFontStyle(font,TTF_STYLE_BOLD);
+        TTF_SetFontKerning(font,1);
         event = malloc(sizeof(SDL_Event));
         return 0;
     } else {
@@ -85,27 +108,35 @@ void disp_sdl_end(void){
 }
 
 void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_height)
-    {
+{
+    int len;
+    char* buffer;
+    SDL_Surface* text_surface;
     //create the cell canvas
     SDL_Surface* cell;
     cell = SDL_CreateRGBSurface(0,cell_width,cell_height,32,0,0,0,0);
+    SDL_FillRect(cell,NULL,SDL_MapRGBA((cell->format),187,173,160,89));
     //Create the background for the cell
-    SDL_Rect rectangle={1,1,cell_width-2,cell_height-2};
+    SDL_Rect rectangle={4,4,cell_width-8,cell_height-8};
 
-    //convert and Create the text layer
-    char* buffer;
-    buffer = itoa(value);
-    SDL_Surface* text_surface;
-    SDL_Color text_color = {0,0,0};
-    text_surface = TTF_RenderUTF8_Solid(font,buffer,text_color);
-
+    //calculate cell color_code
+    int color_code = display_code(value);
     //apply the cell background to the surface
-    SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),255,255,255,255));
-    SDL_Rect text_region = {(cell_width/2)-12,(cell_height/2)-12,0,0};
+    SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),
+            backgrounds[color_code].r,backgrounds[color_code].g,backgrounds[color_code].b,255));
+    SDL_Rect text_region = {(cell_width/2)-24,(cell_height/2)-24,0,0};
 
-    //copy the text_surface to the cell surface
-    SDL_BlitSurface(text_surface,NULL,cell,&text_region);
+    if (color_code > 0){
+        //convert and Create the text layer
+        buffer = itoa(value);
+        len = (strlen(buffer))-1;
+        text_region.x = ((cell_width/2)-24-12*len-1);
+        SDL_Color text_color = {forgrounds[color_code].r,forgrounds[color_code].g,forgrounds[color_code].b};
+        text_surface = TTF_RenderUTF8_Blended(font,buffer,text_color);
 
+        //copy the text_surface to the cell surface
+        SDL_BlitSurface(text_surface,NULL,cell,&text_region);
+    }
     //the location where the cell will go
     SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
     //render the cell
@@ -116,10 +147,12 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
 
     //free the cell surface
     SDL_FreeSurface(cell);
-    //free the text buffer
-    free(buffer);
-    //free the text surface
-    SDL_FreeSurface(text_surface);
+    if (color_code > 0) {
+        //free the text buffer
+        free(buffer);
+        //free the text surface
+        SDL_FreeSurface(text_surface);
+    }
     return;
 }
 
@@ -127,7 +160,7 @@ void disp_sdl_printBoard(struct game * input){
     int* win_width = malloc(sizeof(int));
     int* win_height = malloc(sizeof(int));
     SDL_GetWindowSize(window,win_width,win_height);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 187, 173, 160, 255);
     SDL_RenderClear(renderer);
     if (win_width != NULL && win_height != NULL) {
         int cell_width = (((*win_width) / (input->size)));
