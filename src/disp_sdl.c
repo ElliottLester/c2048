@@ -109,9 +109,8 @@ void disp_sdl_end(void){
 
 void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_height)
 {
-    int len;
-    char* buffer;
-    SDL_Surface* text_surface;
+    char* buffer;  // store the chars to print
+    SDL_Surface* text_surface; //the render on that text
     //create the cell canvas
     SDL_Surface* cell;
     cell = SDL_CreateRGBSurface(0,cell_width,cell_height,32,0,0,0,0);
@@ -124,16 +123,21 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
     //apply the cell background to the surface
     SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),
             backgrounds[color_code].r,backgrounds[color_code].g,backgrounds[color_code].b,255));
-    SDL_Rect text_region = {(cell_width/2)-24,(cell_height/2)-24,0,0};
 
+    //if the value is not zero print the number in the cell
     if (color_code > 0){
         //convert and Create the text layer
         buffer = itoa(value);
-        len = (strlen(buffer))-1;
-        text_region.x = ((cell_width/2)-24-12*len-1);
         SDL_Color text_color = {forgrounds[color_code].r,forgrounds[color_code].g,forgrounds[color_code].b};
+        //resize the text to fit in the cell
         text_surface = TTF_RenderUTF8_Blended(font,buffer,text_color);
+        if (text_surface->w > cell_width) {
+            double scale_ratio = cell_width/text_surface->w;
+            text_surface->w = floor(text_surface->w*scale_ratio);
+            text_surface->h = floor(text_surface->h*scale_ratio);
+        }
 
+        SDL_Rect text_region = {(cell_width-text_surface->w)/2,(cell_height-text_surface->h)/2,0,0};
         //copy the text_surface to the cell surface
         SDL_BlitSurface(text_surface,NULL,cell,&text_region);
     }
