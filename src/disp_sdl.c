@@ -11,8 +11,8 @@ int disp_sdl_init(void){
 
     if(window == NULL) {
 
-        // Initialize SDL.
-        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        // Initialize SDL video.
+        if (SDL_Init(SDL_INIT_VIDEO) != 0)
         return 1;
 
         // Create the window where we will draw.
@@ -40,6 +40,14 @@ int disp_sdl_init(void){
         // This will show the new, red contents of the window.
         SDL_RenderPresent(renderer);
 
+        //Initialize SDL Input
+        if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0)
+            return 1;
+        //Initialize SDL Events
+        if (SDL_Init(SDL_INIT_EVENTS) != 0)
+            return 1;
+
+        event = malloc(sizeof(SDL_Event));
         return 0;
     } else {
         return 1;
@@ -79,7 +87,44 @@ void disp_sdl_printBoard(struct game * input){
 }
 
 void sdl_main(struct game * input, unsigned int seed) {
+    int gameState,moveScore;
+    gameState = 0;
+    moveScore = 0;
     disp_sdl_init();
+    while (gameState == 0) {
+        while(SDL_PollEvent( event ) != 0) {
+        //NULL pointer
+        if (event == NULL) {
+            gameState =1;
+        }
+        //the user sends a quit
+        else if( event->type == SDL_QUIT ) { gameState = 1; }
+
+        //normal key press
+        else if( event->type == SDL_KEYDOWN ) {
+            switch (event->key.keysym.sym) {
+                case SDLK_q:
+                    gameState = 1;
+                    break;
+                case SDLK_UP:
+                    gameState = 1;
+                    break;
+                case SDLK_DOWN:
+                    gameState = 1;
+                    break;
+                case SDLK_LEFT:
+                    gameState = 1;
+                    break;
+                case SDLK_RIGHT:
+                    gameState = 1;
+                    break;
+            }
+        }
+
+
+        }
+    }
+
     disp_sdl_end();
 }
 
