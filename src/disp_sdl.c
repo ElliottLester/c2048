@@ -187,45 +187,44 @@ int sdl_main(struct game * localboard, unsigned int seed) {
         return 1;
     }
     disp_sdl_printBoard(localboard);
-    while (gameState == 0) {
-        while(SDL_PollEvent( event ) != 0) {
-            //NULL pointer
-            if (event == NULL) {
-                gameState = 1;
-            }
-            //the user sends a quit
-            else if( event->type == SDL_QUIT ) { gameState = 1; }
+    while(gameState == 0 && SDL_WaitEvent( event ) != 0) {
+        //NULL pointer
+        if (event == NULL) {
+            gameState = 1;
+        }
+        //the user sends a quit
+        else if( event->type == SDL_QUIT ) { gameState = 1; }
 
-            //normal key press
-            else if( event->type == SDL_KEYDOWN ) {
-                switch (event->key.keysym.sym) {
-                    case SDLK_q:
-                        gameState = 1;
-                        break;
-                    case SDLK_UP:
-                        moveScore = moveUp(localboard);
-                        break;
-                    case SDLK_DOWN:
-                        moveScore = moveDown(localboard);
-                        break;
-                    case SDLK_LEFT:
-                        moveScore = moveLeft(localboard);
-                        break;
-                    case SDLK_RIGHT:
-                        moveScore = moveRight(localboard);
-                        break;
-                    default:
-                        moveScore = -1;
-                        break;
-                }
-                if (moveScore >=0 ) {
-                    insertNewNumber(localboard);
-                    totalScore += moveScore;
-                    disp_sdl_printBoard(localboard);
-                }
+        //normal key press
+        else if( event->type == SDL_KEYDOWN ) {
+            switch (event->key.keysym.sym) {
+                case SDLK_q:
+                    gameState = 1;
+                    break;
+                case SDLK_UP:
+                    moveScore = moveUp(localboard);
+                    break;
+                case SDLK_DOWN:
+                    moveScore = moveDown(localboard);
+                    break;
+                case SDLK_LEFT:
+                    moveScore = moveLeft(localboard);
+                    break;
+                case SDLK_RIGHT:
+                    moveScore = moveRight(localboard);
+                    break;
+                default:
+                    moveScore = -1;
+                    break;
+            }
+            if (moveScore >=0 ) {
+                insertNewNumber(localboard);
+                totalScore += moveScore;
+                disp_sdl_printBoard(localboard);
             }
         }
     }
+
     disp_sdl_end();
     return totalScore;
 }
