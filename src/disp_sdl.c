@@ -60,10 +60,6 @@ void disp_sdl_end(void){
 
 void disp_sdl_printCell(int column,int row, int value,int type)
     {
-    // Select the color for drawing. It is set to red here.
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    // Clear the entire screen to our selected color.
-    SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer,255,0,0,255);
 
     SDL_Rect rectangle={256,256,64,64};
@@ -80,51 +76,62 @@ void disp_sdl_printBoard(struct game * input){
     int* win_width = NULL;
     int* win_height = NULL;
     SDL_GetWindowSize(window,win_width,win_height);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_Rect backGround = {0,0,*(win_width),*(win_height)};
-    (void)backGround;
+    for(int i = 0 ; i < input->size ; i++) {
+        for(int j = 0 ; j < input->size ; j++) {
+            disp_sdl_printCell(i,j,board_get(input,i,j),0);
+        }
+    }
     return;
 }
 
-void sdl_main(struct game * input, unsigned int seed) {
-    int gameState,moveScore;
+int sdl_main(struct game * localboard, unsigned int seed) {
+    int gameState,moveScore,totalScore;
     gameState = 0;
     moveScore = 0;
+    totalScore = 0;
     disp_sdl_init();
     while (gameState == 0) {
         while(SDL_PollEvent( event ) != 0) {
-        //NULL pointer
-        if (event == NULL) {
-            gameState =1;
-        }
-        //the user sends a quit
-        else if( event->type == SDL_QUIT ) { gameState = 1; }
-
-        //normal key press
-        else if( event->type == SDL_KEYDOWN ) {
-            switch (event->key.keysym.sym) {
-                case SDLK_q:
-                    gameState = 1;
-                    break;
-                case SDLK_UP:
-                    gameState = 1;
-                    break;
-                case SDLK_DOWN:
-                    gameState = 1;
-                    break;
-                case SDLK_LEFT:
-                    gameState = 1;
-                    break;
-                case SDLK_RIGHT:
-                    gameState = 1;
-                    break;
+            //NULL pointer
+            if (event == NULL) {
+                gameState = 1;
             }
-        }
+            //the user sends a quit
+            else if( event->type == SDL_QUIT ) { gameState = 1; }
 
-
+            //normal key press
+            else if( event->type == SDL_KEYDOWN ) {
+                switch (event->key.keysym.sym) {
+                    case SDLK_q:
+                        gameState = 1;
+                        break;
+                    case SDLK_UP:
+                        moveScore = moveUp(localboard);
+                        break;
+                    case SDLK_DOWN:
+                        moveScore = moveDown(localboard);
+                        break;
+                    case SDLK_LEFT:
+                        moveScore = moveLeft(localboard);
+                        break;
+                    case SDLK_RIGHT:
+                        moveScore = moveRight(localboard);
+                        break;
+                    default:
+                        moveScore = -1;
+                        break;
+                }
+                if (moveScore >=0 ) {
+                    insertNewNumber(localboard);
+                    totalScore += moveScore;
+                }
+            }
+            disp_sdl_printBoard(localboard);
         }
     }
-
     disp_sdl_end();
+    return totalScore;
 }
 

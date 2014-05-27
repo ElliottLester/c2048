@@ -39,6 +39,6 @@ void disp_sdl_printCell(int column,int row, int value,int type);
  */
 void disp_sdl_printBoard(struct game * input);
 
-void sdl_main(struct game * input, unsigned int seed);
+int sdl_main(struct game * input, unsigned int seed);
 
 #endif

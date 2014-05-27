@@ -54,11 +54,8 @@ int main(int argc, char **argv) {
 
     srand(seed);
 
-    int board_limit = rand() % 2;
-
-    for (int i = 0 ; i <= board_limit;i++){
-        board_set(localBoard,rand() % board_size,rand() % board_size,2);
-    }
+    insertNewNumber(localBoard);
+    insertNewNumber(localBoard);
 
     if(flag_curses == 1) {
         curses_main(localBoard,seed);
