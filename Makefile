@@ -7,7 +7,7 @@
 
 
 CC = gcc
-CFLAGS = -Wall -g -lncurses -ltinfo -std=c99 -lm -lSDL2
+CFLAGS = -Wall -g -lncurses -ltinfo -std=c99 -lm -lSDL2 -lSDL2_ttf
 
 MAIN =  src/main.o
 

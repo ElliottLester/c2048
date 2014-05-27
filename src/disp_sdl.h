@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
 
 //drawing constants
 //keep in mind the charaters
@@ -13,6 +14,7 @@
 //DISPLAY_SDL_VARS
 SDL_Window* window;
 SDL_Renderer* renderer;
+TTF_Font *font;
 
 SDL_Event* event;
 
@@ -32,7 +34,7 @@ void disp_sdl_end(void);
  * prints an single cell at the given position with
  * the given value inside
  */
-void disp_sdl_printCell(int column,int row, int value,int type);
+void disp_sdl_printCell(int column,int row, int value,int cell_width,int cell_high);
 
 /*
  *calls print cell and prints size * size of them
@@ -41,4 +43,5 @@ void disp_sdl_printBoard(struct game * input);
 
 int sdl_main(struct game * input, unsigned int seed);
 
+char *itoa(long n);
 #endif
