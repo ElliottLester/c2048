@@ -4,6 +4,33 @@
 //keep in mind the charaters
 //are taller than they are wide
 
+static int display_code(int input) {
+    double result;
+    result = (log10(input)/log10(2));
+    return round(result);
+
+}
+
+static struct color_tuple palette[COLORS] = {
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0},
+    {0,0,0}
+};
+
+
 /*
  *  sets up the terminal for input and drawing
  */
@@ -43,7 +70,6 @@ int disp_sdl_init(void){
             printf("TTF_OpenFont: %s\n", TTF_GetError());
             return 1;
         }
-
         event = malloc(sizeof(SDL_Event));
         return 0;
     } else {
@@ -52,6 +78,7 @@ int disp_sdl_init(void){
 }
 
 void disp_sdl_end(void){
+    free(event);
     TTF_Quit();
     SDL_Quit();
     return;
@@ -68,27 +95,31 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
     //convert and Create the text layer
     char* buffer;
     buffer = itoa(value);
-    SDL_Surface* surf_text;
+    SDL_Surface* text_surface;
     SDL_Color text_color = {0,0,0};
-    surf_text = TTF_RenderUTF8_Solid(font,buffer,text_color);
+    text_surface = TTF_RenderUTF8_Solid(font,buffer,text_color);
 
     //apply the cell background to the surface
     SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),255,255,255,255));
     SDL_Rect text_region = {(cell_width/2)-12,(cell_height/2)-12,0,0};
 
     //copy the text_surface to the cell surface
-    SDL_BlitSurface(surf_text,NULL,cell,&text_region);
+    SDL_BlitSurface(text_surface,NULL,cell,&text_region);
 
-
+    //the location where the cell will go
     SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
+    //render the cell
     SDL_Texture* rendered_cell = SDL_CreateTextureFromSurface(renderer,cell);
 
+    //render the cell to the board
     SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
 
+    //free the cell surface
     SDL_FreeSurface(cell);
+    //free the text buffer
     free(buffer);
-    SDL_FreeSurface(surf_text);
-
+    //free the text surface
+    SDL_FreeSurface(text_surface);
     return;
 }
 

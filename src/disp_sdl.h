@@ -8,14 +8,18 @@
 //drawing constants
 //keep in mind the charaters
 //are taller than they are wide
-#define CELL_HIGH 9
-#define CELL_WIDE 12
+#define COLORS 16
+
+struct color_tuple {
+    int r;
+    int g;
+    int b;
+};
 
 //DISPLAY_SDL_VARS
 SDL_Window* window;
 SDL_Renderer* renderer;
 TTF_Font *font;
-
 SDL_Event* event;
 
 //exported functions
