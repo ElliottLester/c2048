@@ -12,7 +12,7 @@ int disp_sdl_init(void){
     if(window == NULL) {
 
         // Initialize SDL video.
-        if (SDL_Init(SDL_INIT_VIDEO) != 0)
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0)
         return 1;
 
         // Create the window where we will draw.
@@ -34,17 +34,11 @@ int disp_sdl_init(void){
         // This will show the new, red contents of the window.
         SDL_RenderPresent(renderer);
 
-        //Initialize SDL Input
-        if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0)
-            return 1;
-        //Initialize SDL Events
-        if (SDL_Init(SDL_INIT_EVENTS) != 0)
-            return 1;
         if(TTF_Init() != 0)
             return 1;
 
         // load font.ttf at size 16 into font
-        font=TTF_OpenFont("/usr/share/fonts/corefonts/couri.ttf", 16);
+        font=TTF_OpenFont("/usr/share/fonts/corefonts/couri.ttf", 24);
         if(!font) {
             printf("TTF_OpenFont: %s\n", TTF_GetError());
             return 1;
@@ -72,22 +66,29 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
     SDL_Rect rectangle={1,1,cell_width-2,cell_height-2};
 
     //convert and Create the text layer
-    //char* buffer = "1234";
-    //buffer = itoa(value);
-    //SDL_Surface* surf_text;
-    //SDL_Color text_color = {0,0,0};
-    //surf_text = TTF_RenderUTF8_Solid(font,buffer,text_color);
+    char* buffer;
+    buffer = itoa(value);
+    SDL_Surface* surf_text;
+    SDL_Color text_color = {0,0,0};
+    surf_text = TTF_RenderUTF8_Solid(font,buffer,text_color);
 
     //apply the cell background to the surface
-    SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),255,0,0,255));
+    SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),255,255,255,255));
+    SDL_Rect text_region = {(cell_width/2)-12,(cell_height/2)-12,0,0};
 
     //copy the text_surface to the cell surface
-    //SDL_BlitSurface(surf_text,NULL,cell,NULL);
+    SDL_BlitSurface(surf_text,NULL,cell,&text_region);
 
-    SDL_Rect cell_region = {cell_width*row,cell_height*cell_height,cell_width,cell_height};
+
+    SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
     SDL_Texture* rendered_cell = SDL_CreateTextureFromSurface(renderer,cell);
 
-    //SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
+    SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
+
+    SDL_FreeSurface(cell);
+    free(buffer);
+    SDL_FreeSurface(surf_text);
+
     return;
 }
 
@@ -171,6 +172,6 @@ char *itoa(long n)
     if (n<0) len++; // room for negative sign '-'
 
     char    *buf = (char*) calloc(sizeof(char), len+1); // +1 for null
-    snprintf(buf, len, "%1ld", n);
+    snprintf(buf, len+1, "%ld", n);
     return   buf;
 }

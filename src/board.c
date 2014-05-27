@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <strings.h>
 #include "board.h"
 
 
@@ -8,6 +9,7 @@ struct game * board_create(int size) {
    if (output != NULL) {
         output->size = size;
         output->board = malloc(sizeof(int)*size*size);
+        bzero(output->board,sizeof(int)*size*size);
         if (output->board != NULL) {
             return output;
         }
@@ -236,14 +238,16 @@ int moveDown(struct game * input ) {
 // do not change this function
 
 void insertNewNumber(struct game * input) {
-    int row, column;
+    int row = 0, column = 0;
     int index, availableSquares = 0;
     int size = input->size;
+    int value = 0;
 
     // count vacant squares
     for (row = 0; row < size; row = row + 1) {
         for (column = 0; column < size; column = column + 1) {
-            if (board_get(input,row,column) == 0) {
+            value = board_get(input,row,column);
+            if (value == 0) {
                 availableSquares = availableSquares + 1;
             }
         }
