@@ -183,6 +183,9 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
     //render the cell to the board
     SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
 
+    //free the texture we just COPIED!
+    SDL_DestroyTexture(rendered_cell);
+
     //free the cell surface
     SDL_FreeSurface(cell);
     if (color_code > 0) {
