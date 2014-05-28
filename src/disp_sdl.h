@@ -19,7 +19,8 @@ struct color_tuple {
 //DISPLAY_SDL_VARS
 SDL_Window* window;
 SDL_Renderer* renderer;
-TTF_Font *font;
+TTF_Font* font[8];
+int font_size;
 SDL_Event* event;
 
 //exported functions

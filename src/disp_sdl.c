@@ -86,18 +86,46 @@ int disp_sdl_init(void){
             return 1;
 
         // load font.ttf at size 16 into font
-        font=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 48);
-        if(!font) {
+        font[0]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 12);
+        font[1]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 16);
+        font[2]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 18);
+        font[3]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 24);
+        font[4]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 32);
+        font[5]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 36);
+        font[6]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 42);
+        font[7]=TTF_OpenFont("/usr/share/fonts/corefonts/comic.ttf", 48);
+        if(!font[7]) {
             printf("TTF_OpenFont: %s\n", TTF_GetError());
             return 1;
         }
-        TTF_SetFontStyle(font,TTF_STYLE_BOLD);
-        TTF_SetFontKerning(font,1);
+        for (int i = 0 ; i < 8 ;i++ ){
+            TTF_SetFontStyle(font[i],TTF_STYLE_BOLD);
+            TTF_SetFontKerning(font[i],1);
+        }
+
+        font_size = -1;
+
         event = malloc(sizeof(SDL_Event));
         return 0;
     } else {
         return 1;
     }
+}
+
+static int calculate_fontsize(int cell_width ,int cell_height) {
+    int* text_width = malloc(sizeof(int));
+    int* text_height = malloc(sizeof(int));
+    for(int i = 7 ; i >= 0 ;i--) {
+        TTF_SizeUTF8(font[i],"0000",text_width,text_height);
+        if (*(text_width) < cell_width) {
+            free (text_width);
+            free (text_height);
+            return i;
+        }
+    }
+    free(text_width);
+    free(text_height);
+    return -1;
 }
 
 void disp_sdl_end(void){
@@ -109,28 +137,33 @@ void disp_sdl_end(void){
 
 void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_height)
 {
-    char* buffer;  // store the chars to print
+    char* buffer;           //store the chars to print
     SDL_Surface* text_surface; //the render on that text
-    //create the cell canvas
-    SDL_Surface* cell;
+    SDL_Surface* cell;      //create the cell canvas
+
     cell = SDL_CreateRGBSurface(0,cell_width,cell_height,32,0,0,0,0);
     SDL_FillRect(cell,NULL,SDL_MapRGBA((cell->format),187,173,160,89));
     //Create the background for the cell
     SDL_Rect rectangle={4,4,cell_width-8,cell_height-8};
 
-    //calculate cell color_code
+    //calculate background cell color_code
     int color_code = display_code(value);
     //apply the cell background to the surface
     SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),
             backgrounds[color_code].r,backgrounds[color_code].g,backgrounds[color_code].b,255));
 
+    //check the color_code has been calculated
+    if (color_code > 0 && font_size == -1) {
+            font_size = calculate_fontsize(cell_width-4,cell_height-4);
+    }
+
     //if the value is not zero print the number in the cell
-    if (color_code > 0){
+    if (color_code > 0 && font_size >= 0){
         //convert and Create the text layer
         buffer = itoa(value);
         SDL_Color text_color = {forgrounds[color_code].r,forgrounds[color_code].g,forgrounds[color_code].b};
         //resize the text to fit in the cell
-        text_surface = TTF_RenderUTF8_Blended(font,buffer,text_color);
+        text_surface = TTF_RenderUTF8_Blended(font[font_size],buffer,text_color);
         if (text_surface->w > cell_width) {
             double scale_ratio = cell_width/text_surface->w;
             text_surface->w = floor(text_surface->w*scale_ratio);
@@ -141,6 +174,7 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_
         //copy the text_surface to the cell surface
         SDL_BlitSurface(text_surface,NULL,cell,&text_region);
     }
+
     //the location where the cell will go
     SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
     //render the cell
@@ -204,6 +238,7 @@ int sdl_main(struct game * localboard, unsigned int seed) {
             switch (event->key.keysym.sym) {
                 case SDLK_q:
                     gameState = 1;
+                    moveScore =-1;
                     break;
                 case SDLK_UP:
                     moveScore = moveUp(localboard);
