@@ -66,7 +66,7 @@ int disp_sdl_init(void){
         // Create the window where we will draw.
         window = SDL_CreateWindow("SDL_RenderClear",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              512, 512,
+                              768, 768,
                               0);
 
         // We must call SDL_CreateRenderer in order for draw calls to affect this window.
@@ -107,7 +107,7 @@ void disp_sdl_end(void){
     return;
 }
 
-void disp_sdl_printCell(int column,int row, int value,int cell_width , int cell_height)
+void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_height)
 {
     char* buffer;  // store the chars to print
     SDL_Surface* text_surface; //the render on that text
@@ -183,6 +183,7 @@ void disp_sdl_printBoard(struct game * input){
 
 int sdl_main(struct game * localboard, unsigned int seed) {
     int gameState,moveScore,totalScore;
+    struct game * old_board;
     gameState = 0;
     moveScore = 0;
     totalScore = 0;
@@ -206,7 +207,10 @@ int sdl_main(struct game * localboard, unsigned int seed) {
                     gameState = 1;
                     break;
                 case SDLK_UP:
+                    old_board = board_create(localboard->size);
+                    board_copy(localboard,old_board);
                     moveScore = moveUp(localboard);
+                    board_free(old_board);
                     break;
                 case SDLK_DOWN:
                     moveScore = moveDown(localboard);

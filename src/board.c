@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <strings.h>
+#include <string.h>
 #include "board.h"
 
 
@@ -19,6 +20,15 @@ struct game * board_create(int size) {
         }
    }
    return NULL;
+}
+
+int board_copy(struct game * board_input,struct game * board_output) {
+    if (board_input != NULL && board_output != NULL) {
+        board_output->size = board_input->size;
+        memcpy(board_output->board,board_input->board,(board_input->size)*(board_input->size));
+        return 0;
+    }
+    return 128;
 }
 
 int board_free(struct game * input) {
