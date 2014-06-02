@@ -1,8 +1,7 @@
 #include "disp_sdl.h"
 
-//drawing constants
-//keep in mind the charaters
-//are taller than they are wide
+//global texture cache
+static SDL_Texture * cells[14];
 
 static int display_code(int input) {
     double result;
@@ -94,6 +93,7 @@ int disp_sdl_init(void){
         TTF_SetFontStyle(font,TTF_STYLE_BOLD);
         TTF_SetFontKerning(font,1);
         event = malloc(sizeof(SDL_Event));
+        bzero((void*)cells,sizeof(SDL_Surface*)*14);
         return 0;
     } else {
         return 1;
@@ -107,8 +107,23 @@ void disp_sdl_end(void){
     return;
 }
 
-void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_height)
+void disp_sdl_render_cell(int column,int row, int value,int cell_width, int cell_height)
 {
+    int int_display_code = display_code(value);
+    if(cells[int_display_code] == NULL) {
+        cells[int_display_code] = disp_sdl_draw_cell(value,cell_width,cell_height);
+    }
+    SDL_Texture * rendered_cell = cells[int_display_code];
+    //the location where the cell will go
+    SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
+
+    //render the cell to the board
+    SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
+
+    return;
+}
+
+SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_height) {
     char* buffer;  // store the chars to print
     SDL_Surface* text_surface; //the render on that text
     //create the cell canvas
@@ -141,23 +156,18 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_h
         //copy the text_surface to the cell surface
         SDL_BlitSurface(text_surface,NULL,cell,&text_region);
     }
-    //the location where the cell will go
-    SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
+
     //render the cell
     SDL_Texture* rendered_cell = SDL_CreateTextureFromSurface(renderer,cell);
 
-    //render the cell to the board
-    SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
-
-    //free the cell surface
-    SDL_FreeSurface(cell);
     if (color_code > 0) {
         //free the text buffer
         free(buffer);
         //free the text surface
         SDL_FreeSurface(text_surface);
     }
-    return;
+    SDL_FreeSurface(cell);
+    return rendered_cell;
 }
 
 void disp_sdl_printBoard(struct game * input){
@@ -171,7 +181,7 @@ void disp_sdl_printBoard(struct game * input){
         int cell_height = (((*win_height) / (input->size)));
         for(int i = 0 ; i < input->size ; i++) {
             for(int j = 0 ; j < input->size ; j++) {
-                disp_sdl_printCell(i,j,board_get(input,i,j),cell_width,cell_height);
+                disp_sdl_render_cell(i,j,board_get(input,i,j),cell_width,cell_height);
             }
         }
     }
