@@ -23,6 +23,8 @@ struct game * board_create(int size);
  */
 int board_free(struct game * input);
 
+int board_copy(struct game * board_input,struct game * board_output);
+
 /*
  * Returns the value at the given position on the given board
  * Returns 0 if outside the grid
