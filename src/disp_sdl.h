@@ -40,7 +40,9 @@ void disp_sdl_end(void);
  * prints an single cell at the given position with
  * the given value inside
  */
-void disp_sdl_printCell(int column,int row, int value,int cell_width,int cell_high);
+void disp_sdl_render_cell(int column,int row, int value,int cell_width,int cell_high);
+
+SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_high);
 
 /*
  *calls print cell and prints size * size of them

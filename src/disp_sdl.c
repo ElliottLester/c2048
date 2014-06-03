@@ -1,8 +1,7 @@
 #include "disp_sdl.h"
 
-//drawing constants
-//keep in mind the charaters
-//are taller than they are wide
+//global texture cache
+static SDL_Texture * cells[14];
 
 static int display_code(int input) {
     double result;
@@ -106,6 +105,7 @@ int disp_sdl_init(void){
         font_size = -1;
 
         event = malloc(sizeof(SDL_Event));
+        bzero((void*)cells,sizeof(SDL_Surface*)*14);
         return 0;
     } else {
         return 1;
@@ -135,35 +135,45 @@ void disp_sdl_end(void){
     return;
 }
 
-void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_height)
+void disp_sdl_render_cell(int column,int row, int value,int cell_width, int cell_height)
 {
-    char* buffer;           //store the chars to print
-    SDL_Surface* text_surface; //the render on that text
-    SDL_Surface* cell;      //create the cell canvas
+    int int_display_code = display_code(value);
+    if(cells[int_display_code] == NULL) {
+        cells[int_display_code] = disp_sdl_draw_cell(value,cell_width,cell_height);
+    }
+    SDL_Texture * rendered_cell = cells[int_display_code];
+    //the location where the cell will go
+    SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
 
+    //render the cell to the board
+    SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
+
+    return;
+}
+
+SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_height) {
+    char* buffer;  // store the chars to print
+    SDL_Surface* text_surface; //the render on that text
+    //create the cell canvas
+    SDL_Surface* cell;
     cell = SDL_CreateRGBSurface(0,cell_width,cell_height,32,0,0,0,0);
     SDL_FillRect(cell,NULL,SDL_MapRGBA((cell->format),187,173,160,89));
     //Create the background for the cell
     SDL_Rect rectangle={4,4,cell_width-8,cell_height-8};
 
-    //calculate background cell color_code
+    //calculate cell color_code
     int color_code = display_code(value);
     //apply the cell background to the surface
     SDL_FillRect(cell, &rectangle, SDL_MapRGBA((cell->format),
             backgrounds[color_code].r,backgrounds[color_code].g,backgrounds[color_code].b,255));
 
-    //check the color_code has been calculated
-    if (color_code > 0 && font_size == -1) {
-            font_size = calculate_fontsize(cell_width-4,cell_height-4);
-    }
-
     //if the value is not zero print the number in the cell
-    if (color_code > 0 && font_size >= 0){
+    if (color_code > 0){
         //convert and Create the text layer
         buffer = itoa(value);
         SDL_Color text_color = {forgrounds[color_code].r,forgrounds[color_code].g,forgrounds[color_code].b};
         //resize the text to fit in the cell
-        text_surface = TTF_RenderUTF8_Blended(font[font_size],buffer,text_color);
+        text_surface = TTF_RenderUTF8_Blended(font,buffer,text_color);
         if (text_surface->w > cell_width) {
             double scale_ratio = cell_width/text_surface->w;
             text_surface->w = floor(text_surface->w*scale_ratio);
@@ -175,16 +185,11 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_h
         SDL_BlitSurface(text_surface,NULL,cell,&text_region);
     }
 
-    //the location where the cell will go
-    SDL_Rect cell_region = {cell_width*column,cell_height*row,cell_width,cell_height};
     //render the cell
     SDL_Texture* rendered_cell = SDL_CreateTextureFromSurface(renderer,cell);
 
     //render the cell to the board
     SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
-
-    //free the texture we just COPIED!
-    SDL_DestroyTexture(rendered_cell);
 
     //free the cell surface
     SDL_FreeSurface(cell);
@@ -194,7 +199,8 @@ void disp_sdl_printCell(int column,int row, int value,int cell_width, int cell_h
         //free the text surface
         SDL_FreeSurface(text_surface);
     }
-    return;
+    SDL_FreeSurface(cell);
+    return rendered_cell;
 }
 
 void disp_sdl_printBoard(struct game * input){
@@ -208,7 +214,7 @@ void disp_sdl_printBoard(struct game * input){
         int cell_height = (((*win_height) / (input->size)));
         for(int i = 0 ; i < input->size ; i++) {
             for(int j = 0 ; j < input->size ; j++) {
-                disp_sdl_printCell(i,j,board_get(input,i,j),cell_width,cell_height);
+                disp_sdl_render_cell(i,j,board_get(input,i,j),cell_width,cell_height);
             }
         }
     }
