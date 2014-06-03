@@ -137,6 +137,13 @@ void disp_sdl_end(void){
 
 void disp_sdl_render_cell(int column,int row, int value,int cell_width, int cell_height)
 {
+    int temp_font_size = calculate_fontsize(cell_width,cell_height);
+    if (temp_font_size != font_size){
+        font_size = temp_font_size;
+        for(int i = 0; i < 14 ;i++) {
+            SDL_DestroyTexture(cells[i]);
+        }
+    }
     int int_display_code = display_code(value);
     if(cells[int_display_code] == NULL) {
         cells[int_display_code] = disp_sdl_draw_cell(value,cell_width,cell_height);
@@ -173,7 +180,7 @@ SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_height) {
         buffer = itoa(value);
         SDL_Color text_color = {forgrounds[color_code].r,forgrounds[color_code].g,forgrounds[color_code].b};
         //resize the text to fit in the cell
-        text_surface = TTF_RenderUTF8_Blended(font,buffer,text_color);
+        text_surface = TTF_RenderUTF8_Blended(font[font_size],buffer,text_color);
         if (text_surface->w > cell_width) {
             double scale_ratio = cell_width/text_surface->w;
             text_surface->w = floor(text_surface->w*scale_ratio);
@@ -188,9 +195,6 @@ SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_height) {
     //render the cell
     SDL_Texture* rendered_cell = SDL_CreateTextureFromSurface(renderer,cell);
 
-    //render the cell to the board
-    SDL_RenderCopy(renderer,rendered_cell,NULL,&cell_region);
-
     //free the cell surface
     SDL_FreeSurface(cell);
     if (color_code > 0) {
@@ -199,7 +203,6 @@ SDL_Texture * disp_sdl_draw_cell(int value,int cell_width,int cell_height) {
         //free the text surface
         SDL_FreeSurface(text_surface);
     }
-    SDL_FreeSurface(cell);
     return rendered_cell;
 }
 
